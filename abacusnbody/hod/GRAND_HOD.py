@@ -166,6 +166,7 @@ def gen_cent(
     if want_LRG:
         # parse out the hod parameters
         logM_cut_L, sigma_L = LRG_hod_dict['logM_cut'], LRG_hod_dict['sigma']
+        sigma_vel_L = LRG_hod_dict['sigma_vel']
         ic_L, alpha_c_L, Ac_L, Bc_L = (
             LRG_hod_dict['ic'],
             LRG_hod_dict['alpha_c'],
@@ -181,6 +182,7 @@ def gen_cent(
             ELG_hod_dict['sigma'],
             ELG_hod_dict['gamma'],
         )
+        sigma_vel_E = ELG_hod_dict['sigma_vel']
         alpha_c_E, Ac_E, Bc_E, Cc_E, ic_E = (
             ELG_hod_dict['alpha_c'],
             ELG_hod_dict['Acent'],
@@ -191,6 +193,7 @@ def gen_cent(
 
     if want_QSO:
         logM_cut_Q, sigma_Q = QSO_hod_dict['logM_cut'], QSO_hod_dict['sigma']
+        sigma_vel_Q = QSO_hod_dict['sigma_vel']
         alpha_c_Q, Ac_Q, Bc_Q, ic_Q = (
             QSO_hod_dict['alpha_c'],
             QSO_hod_dict['Acent'],
@@ -318,7 +321,7 @@ def gen_cent(
                     lrg_y[j1] = lrg_y[j1] + proj * ny
                     lrg_z[j1] = lrg_z[j1] + proj * nz
                 elif rsd:
-                    lrg_z[j1] = wrap(pos[i, 2] + lrg_vz[j1] * inv_velz2kms, lbox)
+                    lrg_z[j1] = wrap(pos[i, 2] + (lrg_vz[j1] + np.random.normal(0, sigma_vel_L)) * inv_velz2kms, lbox)
                 lrg_mass[j1] = mass[i]
                 lrg_id[j1] = ids[i]
                 j1 += 1
@@ -346,7 +349,7 @@ def gen_cent(
                     elg_y[j2] = elg_y[j2] + proj * ny
                     elg_z[j2] = elg_z[j2] + proj * nz
                 elif rsd:
-                    elg_z[j2] = wrap(pos[i, 2] + elg_vz[j2] * inv_velz2kms, lbox)
+                    elg_z[j2] = wrap(pos[i, 2] + (elg_vz[j2] + np.random.normal(0, sigma_vel_E)) * inv_velz2kms, lbox)
                 elg_mass[j2] = mass[i]
                 elg_id[j2] = ids[i]
                 j2 += 1
@@ -374,7 +377,7 @@ def gen_cent(
                     qso_y[j3] = qso_y[j3] + proj * ny
                     qso_z[j3] = qso_z[j3] + proj * nz
                 elif rsd:
-                    qso_z[j3] = wrap(pos[i, 2] + qso_vz[j3] * inv_velz2kms, lbox)
+                    qso_z[j3] = wrap(pos[i, 2] + (qso_vz[j3] + np.random.normal(0, sigma_vel_Q)) * inv_velz2kms, lbox)
                 qso_mass[j3] = mass[i]
                 qso_id[j3] = ids[i]
                 j3 += 1
@@ -1375,6 +1378,8 @@ def gen_gals(
         LRG_hod_dict['Bsat'] = LRG_HOD.get('Bsat', 0.0)
         LRG_hod_dict['ic'] = LRG_HOD.get('ic', 1.0)
 
+        LRG_hod_dict['sigma_vel'] = 299792.458 * LRG_HOD.get('sigma_z', 0.) / (1 + params['z'])
+
         LRG_hod_dict['f_sigv'] = LRG_HOD.get('f_sigv', 0)
 
     else:
@@ -1419,6 +1424,8 @@ def gen_gals(
         ELG_hod_dict['logM1_EL'] = ELG_HOD.get('logM1_EL', ELG_hod_dict['logM1'])
         ELG_hod_dict['alpha_EL'] = ELG_HOD.get('alpha_EL', ELG_hod_dict['alpha'])
 
+        ELG_hod_dict['sigma_vel'] = 299792.458 * ELG_hod_dict.get('sigma_z', 0.) / (1 + params['z'])
+
         ELG_hod_dict['f_sigv'] = ELG_HOD.get('f_sigv', 0)
         ELG_hod_dict['exp_frac'] = ELG_HOD.get('exp_frac', 0)
         ELG_hod_dict['exp_scale'] = ELG_HOD.get('exp_scale', 1)
@@ -1457,6 +1464,8 @@ def gen_gals(
         QSO_hod_dict['Bcent'] = QSO_HOD.get('Bcent', 0.0)
         QSO_hod_dict['Bsat'] = QSO_HOD.get('Bsat', 0.0)
         QSO_hod_dict['ic'] = QSO_HOD.get('ic', 1.0)
+
+        QSO_hod_dict['sigma_vel'] = 299792.458 * QSO_hod_dict.get('sigma_z', 0.) / (1 + params['z'])
 
         QSO_hod_dict['f_sigv'] = QSO_HOD.get('f_sigv', 0)
 
